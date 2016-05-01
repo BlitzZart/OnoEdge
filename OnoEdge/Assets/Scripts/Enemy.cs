@@ -56,5 +56,4 @@ public class Enemy : NetworkBehaviour {
             player.CmdDestroyObject(gameObject);
         }
     }
-
 }

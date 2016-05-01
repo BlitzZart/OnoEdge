@@ -15,7 +15,7 @@ GameObject:
   - 114: {fileID: 11430366}
   - 54: {fileID: 5451316}
   m_Layer: 9
-  m_Name: Sphere
+  m_Name: Body
   m_TagString: Base
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -107,7 +107,7 @@ Transform:
   m_GameObject: {fileID: 123934}
   m_LocalRotation: {x: -0.7071068, y: 0, z: 0, w: 0.7071067}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 3, y: 3, z: 3}
+  m_LocalScale: {x: 2, y: 2, z: 2}
   m_Children: []
   m_Father: {fileID: 454480}
   m_RootOrder: 1
@@ -155,7 +155,7 @@ MeshRenderer:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 192938}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_Materials:
@@ -188,7 +188,7 @@ MeshFilter:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 123934}
-  m_Mesh: {fileID: 4300000, guid: 8af5d68787cdfee4ea6e9fd26ad15436, type: 3}
+  m_Mesh: {fileID: 4300000, guid: abb4dc6c001f09d4db9522d495b3df83, type: 3}
 --- !u!54 &5451316
 Rigidbody:
   m_ObjectHideFlags: 1
@@ -213,9 +213,9 @@ Light:
   m_Enabled: 1
   serializedVersion: 6
   m_Type: 2
-  m_Color: {r: 0.64553744, g: 0.9852941, b: 0, a: 1}
-  m_Intensity: 1.59
-  m_Range: 10
+  m_Color: {r: 0.6544118, g: 0.9856998, b: 1, a: 1}
+  m_Intensity: 1.65
+  m_Range: 23
   m_SpotAngle: 30
   m_CookieSize: 10
   m_Shadows:
@@ -331,8 +331,8 @@ SphereCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.67
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Radius: 0.8
+  m_Center: {x: 0, y: 0.4, z: 0}
 --- !u!1001 &100100000
 Prefab:
   m_ObjectHideFlags: 1
