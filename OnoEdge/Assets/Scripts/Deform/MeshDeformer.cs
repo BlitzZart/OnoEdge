@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
-public class MeshDeformer : MonoBehaviour {
+public class MeshDeformer : MonoBehaviour/*, ISwitchable*/ {
     static Vector3 unInitVec = new Vector3(-9999.1f, -9999.2f, -9999.3f); // TODO: make clean initialisation - this init value is just a hack
     class Vertex {
         public Vector3 tVertex;
@@ -73,12 +75,21 @@ public class MeshDeformer : MonoBehaviour {
     }
 
     public bool solidDeformation = true;
+    public bool relaxMesh = false;
+    public bool reactOnPlayerDistance = false;
+    [Range(0.0f, 10)]
+    public float reactionDistance = 5;
+
+    private Vector3[] vertices;
+    public Vector3[] Vertices {
+        get { return vertices; }
+    }
+
     bool positiveDeformation = true;
 
     Mesh mesh;
     Vector3[] targetVertices;
     Vector3[] oV;
-
 
     Vertex[] unique;
     VertexList uList;
@@ -86,7 +97,7 @@ public class MeshDeformer : MonoBehaviour {
     float[] offsets;
 
     [Header("Overall power of deformation")]
-    [Range(0.0f, 10)]
+    [Range(0.0f, 50)]
     public float power = 1.0f;
     [Header("Influence of FFT")]
     [Range(0.0f, 2)]
@@ -101,8 +112,13 @@ public class MeshDeformer : MonoBehaviour {
     [Range(0.0f, 1.0f)]
     public float rate = 0.1f; // for music visualization beat detection would be nice
 
-
     private float defaultVibration = 0.02f;
+
+    // used for player position independend deformation 
+    private Transform playerTransform;
+    private Vector3 playerPosition;
+    private float playerDistance;
+
 
     // Use this for initialization
     void Start() {
@@ -128,11 +144,11 @@ public class MeshDeformer : MonoBehaviour {
         }
         unique = uList.vertices.ToArray();
 
-        //print(uList.ToString());
-
         oV = mesh.vertices;
         targetVertices = mesh.vertices;
         offsets = new float[] { 0 };
+
+        playerTransform = Camera.main.transform;
     }
 
     public void ArrayOffests(float[] offsets) {
@@ -154,32 +170,95 @@ public class MeshDeformer : MonoBehaviour {
                 UpdateMeshBreaking();
         }
 
-        Vector3[] vertices = mesh.vertices;
+        vertices = mesh.vertices;
         for (int i = 0; i < oV.Length; i++) {
             //if (positiveDeformation & targetVertices[i].sqrMagnitude < 0)
             //    targetVertices[i] *= -1;
             vertices[i] = Vector3.Lerp(vertices[i], targetVertices[i], Time.deltaTime * speed);
         }
         mesh.vertices = vertices;
-        mesh.RecalculateBounds();
+        //mesh.RecalculateBounds();
     }
 
     void UpdateMeshBreaking() {
         for (int i = 0; i < oV.Length; i++) {
-            targetVertices[i] = oV[i] + mesh.normals[i] * Random.Range(-randomPower, randomPower) * power *
+            targetVertices[i] = oV[i] + mesh.normals[i] * UnityEngine.Random.Range(-randomPower, randomPower) * power *
                 (defaultVibration * Mathf.Clamp01(power) + offsets[i % offsets.Length] * fftPower);
         }
     }
 
     void UpdateMeshSolid() {
+        if (!reactOnPlayerDistance) {
+            playerDistance = reactionDistance = 1; // prevent division by zero
+        }
+        //else {
+        //    // check distance between gameobject and player.
+        //    // skip if far away to save prevents useless processing.
+        //    // TODO: solve relaxing problem. 
+        //    if (Vector3.Distance(playerTransform.transform.position, transform.position) > reactionDistance + 5)
+        //        return;
+        //}
+
+        // transfrom player position in mesh(local) space
+        playerPosition = transform.InverseTransformPoint(playerTransform.transform.position);
         int i = 0;
         foreach (Vertex item in unique) {
-            item.tVertex = item.oVertex + item.normal * Random.Range(-randomPower, randomPower) * power *
-                    (defaultVibration * Mathf.Clamp01(power) + offsets[i++ % offsets.Length] * fftPower);
+            playerDistance = Vector3.Distance(playerPosition, item.oVertex);
 
-            foreach (int index in item.indices) {
-                targetVertices[index] = item.tVertex;
+            // calculate position of target vertex
+            item.tVertex =
+                item.oVertex + item.normal *
+                UnityEngine.Random.Range(-randomPower, randomPower) *
+                power *
+                (reactionDistance / playerDistance) *
+                (defaultVibration * Mathf.Clamp01(power) + offsets[i++ % offsets.Length] * fftPower);
+
+            if (reactOnPlayerDistance) { // vertices react on player position
+                if (playerDistance < reactionDistance) {
+                    UpdateTargetVertices(item, false);
+                }
+                else { // reset mesh if player walks away
+                    UpdateTargetVertices(item, true);
+                }
+            }
+            else { // this happens when player position check is deactivated
+                UpdateTargetVertices(item, relaxMesh);
             }
         }
     }
+
+    // use this to deactivate the mesh deformer delayed
+    // so the mesh can relax when the player is gone
+    IEnumerator DeactivateDelayed() {
+        yield return new WaitForSeconds(1);
+        // set mesh deformer inactive
+        this.enabled = false;
+    }
+
+    // apply new position to all target vertices
+    void UpdateTargetVertices(Vertex vertex, bool relax) {
+        if (relax)
+            foreach (int index in vertex.indices)
+                targetVertices[index] = vertex.oVertex;
+
+        else // reset mesh if player walks away
+            foreach (int index in vertex.indices)
+                targetVertices[index] = vertex.tVertex;
+    }
+
+    //public void Activate() {
+    //    this.enabled = true;
+    //}
+
+    //public void DeActivate() {
+    //    StartCoroutine(DeactivateDelayed());
+    //}
+
+    //public void Switch() {
+    //    this.enabled = !this.enabled;
+    //}
+
+    //public bool GetState() {
+    //    return this.enabled;
+    //}
 }

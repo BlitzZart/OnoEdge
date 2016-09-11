@@ -61,7 +61,7 @@ public class Player : NetworkBehaviour {
             transform.Rotate(0, 0, -keyboardRotationSpeed * Time.deltaTime);
         }
 
-        if (Input.GetKeyDown(KeyCode.Space)) {
+        if (Input.GetKeyDown(KeyCode.LeftControl)) {
             gun.Shoot();
         }
 #endif

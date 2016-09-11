@@ -6,7 +6,6 @@ public class UI_NetworkToggle : MonoBehaviour {
     NetworkUI ui;
 
     public void Toggle() {
-        print("Try");
         if (ui == null)
             ui = FindObjectOfType<NetworkUI>();
 

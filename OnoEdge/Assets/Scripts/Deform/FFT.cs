@@ -10,11 +10,26 @@ public class FFT : MonoBehaviour {
     void Start()
     {
         audio = FindObjectOfType<MusicPlayer>().GetComponent<AudioSource>();
+        if (audio == null) {
+            enabled = false;
+            return;
+        }
+
+
+        audio.time = 30;
         deformer = GetComponent<MeshDeformer>();
     }
 
     void Update()
     {
+        //if (Input.GetKeyDown(KeyCode.Space))
+        //{
+        //    if (audio.isPlaying)
+        //        audio.Pause();
+        //    else
+        //        audio.Play();
+        //}
+
         audio.GetSpectrumData(spectrum, 0, FFTWindow.Rectangular);
 
         deformer.ArrayOffests(spectrum);
