@@ -10,23 +10,27 @@ public class Base : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
         baseLight = GetComponentInChildren<Light>();
-        baseLight.color = saveColor;
+        if (baseLight != null)
+            baseLight.color = saveColor;
 	}
 
     void MsgColliderEmpty() {
-        print("empty ");
-        baseLight.color = saveColor;
+        //print("empty ");
+        if (baseLight != null)
+            baseLight.color = saveColor;
     }
 
     void MsgEnemyEntered() {
-        print("entered");
-        baseLight.color = dangerColor;
+        //print("entered");
+        if (baseLight != null)
+            baseLight.color = dangerColor;
     }
 
     void MsgEnemyLeft(bool enemiesInside) {
-        print("left " + enemiesInside);
+        //print("left " + enemiesInside);
         if (!enemiesInside)
-            baseLight.color = saveColor;
+            if (baseLight != null)
+                baseLight.color = saveColor;
     }
 
     // Update is called once per frame

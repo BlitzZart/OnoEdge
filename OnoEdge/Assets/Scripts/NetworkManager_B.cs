@@ -63,4 +63,5 @@ public class NetworkManager_B : NetworkManager {
         // Stop enemy spawning
         CancelInvoke("SpawnEnemy");
     }
+
 }

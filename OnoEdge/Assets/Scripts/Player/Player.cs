@@ -8,7 +8,7 @@ public class Player : NetworkBehaviour {
     private AudioSource audioSource;
     private PlayerSounds playerSounds;
 
-
+    private int dimensions = 3;
 
     // rotation of player
     private float gyroSpeed = 25.0f;
@@ -48,28 +48,48 @@ public class Player : NetworkBehaviour {
 
         float rotationDirection = 0;
 
-        // transform camera
-        Vector3 inter = new Vector3(cameraMounting.rotation.eulerAngles.x, 0, transform.rotation.eulerAngles.z);
-        cameraMounting.rotation = Quaternion.Lerp(cameraMounting.rotation, Quaternion.Euler(inter), cameraRotationSpeed * Time.deltaTime);
+        MoveCamera();
+        //// transform camera 2D
+        //Vector3 inter = new Vector3(cameraMounting.rotation.eulerAngles.x, 0, transform.rotation.eulerAngles.z);
+        //cameraMounting.rotation = Quaternion.Lerp(cameraMounting.rotation, Quaternion.Euler(inter), cameraRotationSpeed * Time.deltaTime);
 
         rotationDirection = transform.rotation.eulerAngles.z;
 #if UNITY_EDITOR || UNITY_STANDALONE
 
-        if (Input.GetKey(KeyCode.LeftArrow)) {
-            transform.Rotate(0, 0, keyboardRotationSpeed * Time.deltaTime);
-        } else if (Input.GetKey(KeyCode.RightArrow)) {
-            transform.Rotate(0, 0, -keyboardRotationSpeed * Time.deltaTime);
-        }
+        if (dimensions >= 2)
+            if (Input.GetKey(KeyCode.LeftArrow)) {
+                transform.Rotate(0, 0, keyboardRotationSpeed * Time.deltaTime);
+            } else if (Input.GetKey(KeyCode.RightArrow)) {
+                transform.Rotate(0, 0, -keyboardRotationSpeed * Time.deltaTime);
+            }
+
+        if (dimensions >= 3)
+            if (Input.GetKey(KeyCode.UpArrow)) {
+                transform.Rotate(-keyboardRotationSpeed * Time.deltaTime, 0, 0);
+            }
+            else if (Input.GetKey(KeyCode.DownArrow)) {
+                transform.Rotate(keyboardRotationSpeed * Time.deltaTime, 0, 0);
+            }
+
 
         if (Input.GetKeyDown(KeyCode.LeftControl)) {
             gun.Shoot();
         }
 #endif
 
-#if UNITY_ANDROID && !UNITY_EDITOR
-        transform.rotation = Quaternion.Lerp
-            (transform.rotation, Quaternion.Euler
-            (new Vector3(transform.rotation.x, transform.rotation.y, Input.gyro.attitude.eulerAngles.z)), gyroSpeed * Time.deltaTime);
+#if UNITY_ANDROID// && !UNITY_EDITOR
+        if (dimensions == 2) {
+            transform.rotation = Quaternion.Lerp
+                (transform.rotation, Quaternion.Euler
+                (new Vector3(transform.rotation.x, transform.rotation.y, Input.gyro.attitude.eulerAngles.z)), gyroSpeed * Time.deltaTime);
+        }
+        else
+        if (dimensions == 3) {
+            transform.rotation = Quaternion.Lerp
+                (transform.rotation, Quaternion.Euler
+                (new Vector3(transform.rotation.x, -Input.gyro.attitude.eulerAngles.y, Input.gyro.attitude.eulerAngles.z)), gyroSpeed * Time.deltaTime);
+        }
+
 
         if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began) {
             gun.Shoot();
@@ -95,6 +115,10 @@ public class Player : NetworkBehaviour {
         //DebugText.Instance.AddText("° " + roll + " time " + Time.deltaTime.ToString() + " fps " + Time.renderedFrameCount);
 
         bodyTransform.localRotation = Quaternion.Lerp(bodyTransform.localRotation, Quaternion.Euler(inter), Time.deltaTime * speed);
+    }
+
+    private void MoveCamera() {
+        cameraMounting.rotation = Quaternion.Lerp(cameraMounting.rotation, this.transform.rotation, Time.deltaTime * 10);
     }
 
     //--------------------------------

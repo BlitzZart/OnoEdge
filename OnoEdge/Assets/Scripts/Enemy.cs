@@ -29,7 +29,10 @@ public class Enemy : NetworkBehaviour {
     }
 
     void OnDestroy() {
-        if(audioSource != null)
+        if (!NetworkManager.singleton.isNetworkActive)
+            return; // don't spawn stuff if game shuts down
+
+        if (audioSource != null)
             audioSource.PlayOneShot(playerSounds.explodeEnemy, 1.7f);
 
         //CameraShake.Instance.Shake();
@@ -45,15 +48,21 @@ public class Enemy : NetworkBehaviour {
             if (healthComponent.Hp > 0) { // hit
                 if (audioSource != null)
                     audioSource.PlayOneShot(playerSounds.explodeEnemy, 1.7f);
-                player.CmdDestroyObject(other.gameObject);
+
+                NetworkServer.Destroy(other.gameObject);
+                //player.CmdDestroyObject(other.gameObject);
             } else { // dead
-                player.CmdDestroyObject(other.gameObject);
-                player.CmdDestroyObject(gameObject);
+                Scoring.Instance.CmdDestroyedEnemy();
+                NetworkServer.Destroy(other.gameObject);
+                //player.CmdDestroyObject(other.gameObject);
+                NetworkServer.Destroy(gameObject);
+                //player.CmdDestroyObject(gameObject);
             }
         }
 
         if (other.tag == "Base") {
-            player.CmdDestroyObject(gameObject);
+            NetworkServer.Destroy(gameObject);
+            //player.CmdDestroyObject(gameObject);
         }
     }
 }

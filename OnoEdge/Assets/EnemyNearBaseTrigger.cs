@@ -31,7 +31,7 @@ public class EnemyNearBaseTrigger : MonoBehaviour {
 
         enemiesInside = Physics.CheckSphere(coll.center, coll.radius * coll.transform.localScale.x, layerMask);
 
-        print("CC " + enemiesInside);
+        //print("CC " + enemiesInside);
         if (!enemiesInside) {
             SendMessageUpwards("MsgColliderEmpty", SendMessageOptions.DontRequireReceiver);
         }

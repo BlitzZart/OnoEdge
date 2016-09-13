@@ -25,7 +25,6 @@ public class SetQuality : MonoBehaviour {
         effects = new List<MonoBehaviour>();
         effects.Add(Camera.main.GetComponent<Antialiasing>());
         effects.Add(Camera.main.GetComponent<VignetteAndChromaticAberration>());
-
     }
 
     public void Toggle() {
@@ -36,29 +35,32 @@ public class SetQuality : MonoBehaviour {
 
     public void Toggle(Text text) {
         Toggle();
-        text.text = current.ToString();
+        text.text = "Quality: " + current.ToString();
     }
 
     private void SwitchQuality() {
         switch (current) {
 
-            case Quality.Low:
-                ApplyQuality(false, false);
+            case Quality.Low: // set lowest quality level
+                ApplyQuality(0, 0, 0);
                 break;
-            case Quality.High:
-                ApplyQuality(false, true);
+            case Quality.High: // set highest quality level
+                ApplyQuality(1, 1, QualitySettings.names.Length - 1);
                 break;
             default:
                 break;
         }
     }
-    // 0 = AA, 1 = vignetteAndChromatic
-    private void ApplyQuality(params bool[] values) {
-        for (int i = 0; i < values.Length; i++) {
+
+    // 0 = AA as bool (0/1), 1 = vignetteAndChromatic as bool (0/1), 2 = QualityLevel as int
+    // last parameter is defindes QualitySetting (int value)
+    private void ApplyQuality(params int[] values) {
+        for (int i = 0; i < effects.Count; i++) {
             if (effects[i] != null) {
-                effects[i].enabled = values[i];
+                effects[i].enabled = Convert.ToBoolean(values[i]);
             }
         }
+        QualitySettings.SetQualityLevel(values[values.Length - 1], true);
     }
 
 }
