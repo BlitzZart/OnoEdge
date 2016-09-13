@@ -8,11 +8,11 @@ public class Player : NetworkBehaviour {
     private AudioSource audioSource;
     private PlayerSounds playerSounds;
 
-    private int dimensions = 3;
+    public int dimensions = 2;
 
     // rotation of player
     private float gyroSpeed = 25.0f;
-    private float keyboardRotationSpeed = 120.0f;
+    private float keyboardRotationSpeed = 90.0f;
 
     // rotation of camera
     private Transform cameraMounting;
@@ -77,7 +77,7 @@ public class Player : NetworkBehaviour {
         }
 #endif
 
-#if UNITY_ANDROID// && !UNITY_EDITOR
+#if UNITY_ANDROID && !UNITY_EDITOR // do // && !UNITY_EDITOR to test with remote
         if (dimensions == 2) {
             transform.rotation = Quaternion.Lerp
                 (transform.rotation, Quaternion.Euler
