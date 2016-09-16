@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class Lobby : MonoBehaviour {
     private static Lobby instance;
@@ -9,16 +10,49 @@ public class Lobby : MonoBehaviour {
         }
     }
 
-    // Use this for initialization
-    void Start () {
-        if (SceneLogic.isServer)
-            NW_ManagerAdapter.Instance.StartHost();
+    private List<LobbyPlayer> players;
 
-        NW_ManagerAdapter.Instance.AddLobbyPlayer();
+    void Awake() {
+        instance = this;
     }
 
-	// Update is called once per frame
-	void Update () {
-	
-	}
+    // Use this for initialization
+    void Start() {
+        players = new List<LobbyPlayer>();
+
+        if (SceneLogic.Instance.isServer) {
+            print("isserver");
+            NW_ManagerAdapter.Instance.StartHost();
+        }
+        else {
+            print("wants liten @ " + NW_BroadcastingAdapter.Instance);
+            NW_BroadcastingAdapter.Instance.StartListening();
+            
+        }
+    }
+
+    void Update() {
+        CheckPlayersReady();
+
+    }
+
+    public void AddPlayer(LobbyPlayer newPlayer) {
+        players.Add(newPlayer);
+    }
+
+    public void RemovePlayer(LobbyPlayer leaving) {
+        players.Remove(leaving);
+    }
+
+    // Update is called once per frame
+    private void CheckPlayersReady () {
+        if (players.Count < 1)
+            return;
+
+        foreach (LobbyPlayer item in players) {
+            if (!item.playerIsReady)
+                return;
+        }
+        SceneLogic.Instance.StartGame();
+    }
 }

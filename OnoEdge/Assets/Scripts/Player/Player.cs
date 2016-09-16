@@ -24,11 +24,18 @@ public class Player : NetworkBehaviour {
     private float rollThreshold = 0.1f;
     private float rollSpeed = 4.0f;
 
+
+    #region unity callbacks
     public override void OnStartLocalPlayer() {
         GetComponentInChildren<PlayerStyle>().SetColor(1);
     }
 
+    void OnEnable() {
+        cameraMounting = Camera.main.transform.parent;
+    }
+
     void Start() {
+        DontDestroyOnLoad(gameObject);
         gun = GetComponentInChildren<Gun>();
         audioSource = GetComponent<AudioSource>();
         playerSounds = GetComponent<PlayerSounds>();
@@ -39,6 +46,9 @@ public class Player : NetworkBehaviour {
             bodyTransform = GetComponentInChildren<PlayerOrbit>().transform;
         }
 
+        NW_ManagerAdapter.Instance.AddLobbyPlayer(gameObject);
+
+        gameObject.SetActive(false);
     }
 
 	// Update is called once per frame
@@ -99,6 +109,7 @@ public class Player : NetworkBehaviour {
         rotationDirection -= transform.rotation.eulerAngles.z;
         Roll(rotationDirection);
     }
+    #endregion
 
     // roll ship
     private void Roll(float roll) {
@@ -117,13 +128,16 @@ public class Player : NetworkBehaviour {
         bodyTransform.localRotation = Quaternion.Lerp(bodyTransform.localRotation, Quaternion.Euler(inter), Time.deltaTime * speed);
     }
 
+    #region private
     private void MoveCamera() {
         cameraMounting.rotation = Quaternion.Lerp(cameraMounting.rotation, this.transform.rotation, Time.deltaTime * 10);
     }
+    #endregion
 
     //--------------------------------
     //---- Network Communication -----
     //--------------------------------
+    #region unet
     [Command]
     public void CmdFireBullet(Vector3 pos, Vector3 dir, float speed) {
         GameObject bullet = Instantiate(gun.bulletPrefab, pos, transform.rotation) as GameObject;
@@ -144,4 +158,5 @@ public class Player : NetworkBehaviour {
     }
     //--------------------------------
     //--------------------------------
+    #endregion
 }

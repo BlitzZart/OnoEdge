@@ -60,7 +60,7 @@ MonoBehaviour:
     i14: 226
     i15: 110
   m_ServerOnly: 0
-  m_LocalPlayerAuthority: 1
+  m_LocalPlayerAuthority: 0
 --- !u!114 &11435906
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -72,6 +72,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a6c0eb965ae50d4bb1aac3afb61d927, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  numberOfPlayers: 0
+  playerIsReady: 0
+  lobbyEntryPrefab: {fileID: 129936, guid: da6b15b9d53f8d84f83dd603d62addcd, type: 2}
+  shipPlayerPrefab: {fileID: 113688, guid: 4989e9ee8b647f64f9355e5db1704c53, type: 2}
 --- !u!1001 &100100000
 Prefab:
   m_ObjectHideFlags: 1

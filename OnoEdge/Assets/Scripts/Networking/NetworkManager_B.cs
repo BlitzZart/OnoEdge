@@ -4,15 +4,29 @@ using UnityEngine.Networking;
 using System.Collections.Generic;
 
 public class NetworkManager_B : NetworkManager {
+    private static NetworkManager_B instance;
+    public static NetworkManager_B Instance {
+        get {
+            return instance;
+        }
+    }
 
     public GameObject enemyPrefab, baseBrefab;
+
+    
 
     private float enemySpawnDistance = 150;
     private float spawnRate = 2;
 
+
+
+    void Awake() {
+        instance = this;
+    }
+
     public override void OnStartServer() {
-        Invoke("SpawnOnBegin", 0.5f);
-        InvokeRepeating("SpawnEnemy", spawnRate, spawnRate);
+        //Invoke("SpawnOnBegin", 0.5f);
+        //InvokeRepeating("SpawnEnemy", spawnRate, spawnRate);
     }
 
     void SpawnOnBegin() {
@@ -28,6 +42,10 @@ public class NetworkManager_B : NetworkManager {
 
         NetworkServer.Spawn(enemy);
     }
+
+    //public void SpawnObject(GameObject go) {
+    //    NetworkServer.Spawn(go);
+    //}
 
     public override void OnServerConnect(NetworkConnection conn) {
         base.OnServerConnect(conn);
@@ -53,7 +71,7 @@ public class NetworkManager_B : NetworkManager {
         if (numPlayers + offset > 0)
             rate = spawnRate / (numPlayers + offset);
 
-        InvokeRepeating("SpawnEnemy", spawnRate, rate);
+        //InvokeRepeating("SpawnEnemy", spawnRate, rate);
     }
 
 

@@ -18,17 +18,25 @@ public class NW_BroadcastingAdapter : NetworkDiscovery {
     }
 
     public override void OnReceivedBroadcast(string fromAddress, string data) {
+        print("found 1");
         if (data.Equals(this.data))
             return;
-
+        print("found 2");
         //if (NetworkManager.singleton.client.isConnected)
         //    return;
 
-        NetworkManager.singleton.networkAddress = fromAddress;
-        NetworkManager.singleton.StartClient();
-
         StopBroadcast();
 
+        // is null when the client is in the offline scene
+        // after changing to lobby scene this code will be executed a second time
+        //if (NetworkManager.singleton == null) {
+        //    SceneLogic.Instance.GoToLobby(false);
+        //    return;
+        //}
+
+
+        NetworkManager.singleton.networkAddress = fromAddress;
+        NetworkManager.singleton.StartClient();
     }
 
     public void StopAll() {
@@ -36,11 +44,25 @@ public class NW_BroadcastingAdapter : NetworkDiscovery {
     }
 
     public void StartListening() {
+        print("start listening");
+        NetworkTransport.Init();
+
+        NetworkTransport.Shutdown();
+        Initialize();
+        StartAsClient();
+
+        //StartCoroutine(LOL());
+
+    }
+
+    IEnumerator LOL() {
+        yield return new WaitForSeconds(1);
         Initialize();
         StartAsClient();
     }
 
     public void StartBroadcasting() {
+        print("broadcast");
         Initialize();
 
         broadcastData = data;
