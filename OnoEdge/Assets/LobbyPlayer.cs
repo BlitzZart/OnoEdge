@@ -4,9 +4,6 @@ using UnityEngine.Networking;
 
 public class LobbyPlayer : NetworkBehaviour {
     [SyncVar]
-    public int numberOfPlayers = 0;
-
-    [SyncVar]
     public bool playerIsReady = false;
 
     public GameObject lobbyEntryPrefab;
@@ -49,18 +46,18 @@ public class LobbyPlayer : NetworkBehaviour {
         if (hasAuthority) {
             playerEntry.localPlayer = true;
 
-            playerEntry.playerNumber = numberOfPlayers;
+            playerEntry.playerNumber = NetworkManager_B.numberOfPlayers;
             CmdCntPlayer();
         }
         Lobby.Instance.AddPlayer(this);
-        lobbyList.AddEntry(go, numberOfPlayers);
+        lobbyList.AddEntry(go, NetworkManager_B.numberOfPlayers);
     }
     #endregion
 
     #region unet 
     [Command]
     private void CmdCntPlayer() {
-        numberOfPlayers++;
+        NetworkManager_B.numberOfPlayers++;
     }
     [Command]
     public void CmdPlayerReady() {

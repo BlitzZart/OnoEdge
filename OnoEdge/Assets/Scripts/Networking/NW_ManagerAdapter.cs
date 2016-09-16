@@ -9,7 +9,7 @@ public class NW_ManagerAdapter : MonoBehaviour {
             return instance;
         }
     }
-    private NetworkManager_B manager;
+    private NetworkManager manager;
     public GameObject lobbyPlayerPrefab;
 
 
@@ -18,7 +18,7 @@ public class NW_ManagerAdapter : MonoBehaviour {
     }
 
     void Start() {
-        manager = NetworkManager_B.Instance;
+        manager = NetworkManager.singleton;
     }
      
 	// Starts host and broadcasting

@@ -44,9 +44,8 @@ public class Player : NetworkBehaviour {
             Input.gyro.enabled = true;
             cameraMounting = Camera.main.transform.parent;
             bodyTransform = GetComponentInChildren<PlayerOrbit>().transform;
+            CmdSpawnLobbyPlayer();
         }
-
-        NW_ManagerAdapter.Instance.AddLobbyPlayer(gameObject);
 
         gameObject.SetActive(false);
     }
@@ -138,6 +137,11 @@ public class Player : NetworkBehaviour {
     //---- Network Communication -----
     //--------------------------------
     #region unet
+    [Command]
+    private void CmdSpawnLobbyPlayer() {
+        NW_ManagerAdapter.Instance.AddLobbyPlayer(gameObject);
+    }
+
     [Command]
     public void CmdFireBullet(Vector3 pos, Vector3 dir, float speed) {
         GameObject bullet = Instantiate(gun.bulletPrefab, pos, transform.rotation) as GameObject;

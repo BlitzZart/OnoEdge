@@ -21,11 +21,9 @@ public class Lobby : MonoBehaviour {
         players = new List<LobbyPlayer>();
 
         if (SceneLogic.Instance.isServer) {
-            print("isserver");
             NW_ManagerAdapter.Instance.StartHost();
         }
         else {
-            print("wants liten @ " + NW_BroadcastingAdapter.Instance);
             NW_BroadcastingAdapter.Instance.StartListening();
             
         }

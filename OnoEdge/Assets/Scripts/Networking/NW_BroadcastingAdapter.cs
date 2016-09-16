@@ -18,10 +18,8 @@ public class NW_BroadcastingAdapter : NetworkDiscovery {
     }
 
     public override void OnReceivedBroadcast(string fromAddress, string data) {
-        print("found 1");
         if (data.Equals(this.data))
             return;
-        print("found 2");
         //if (NetworkManager.singleton.client.isConnected)
         //    return;
 
@@ -40,14 +38,12 @@ public class NW_BroadcastingAdapter : NetworkDiscovery {
     }
 
     public void StopAll() {
+        //Initialize();
         StopBroadcast();
     }
 
     public void StartListening() {
-        print("start listening");
-        NetworkTransport.Init();
 
-        NetworkTransport.Shutdown();
         Initialize();
         StartAsClient();
 

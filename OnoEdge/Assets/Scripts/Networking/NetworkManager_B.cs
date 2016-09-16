@@ -4,23 +4,30 @@ using UnityEngine.Networking;
 using System.Collections.Generic;
 
 public class NetworkManager_B : NetworkManager {
+
+    public static int numberOfPlayers = 0;
+
     private static NetworkManager_B instance;
     public static NetworkManager_B Instance {
         get {
+            if (instance == null)
+                instance = instance.gameObject.GetComponent<NetworkManager_B>(); // wtf^^
             return instance;
         }
     }
 
     public GameObject enemyPrefab, baseBrefab;
 
-    
-
     private float enemySpawnDistance = 150;
     private float spawnRate = 2;
 
 
+    //this awake causes strange network errors / maybe because this class derives from NetworkManager(which also uses Awake() to init singleton)
+    //void Awake() {
+    //    instance = this;
+    //}
 
-    void Awake() {
+    void Start() {
         instance = this;
     }
 
