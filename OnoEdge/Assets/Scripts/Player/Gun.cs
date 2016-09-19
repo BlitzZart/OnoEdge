@@ -14,6 +14,7 @@ public class Gun : MonoBehaviour {
 	}
 	
     public void Shoot() {
-        player.CmdFireBullet(nozzle.transform.position, transform.up, speed);
+        //if (player.Activated)
+            player.CmdFireBullet(nozzle.transform.position, transform.up, speed);
     }
 }

@@ -10,8 +10,6 @@ public class NW_ManagerAdapter : MonoBehaviour {
         }
     }
     private NetworkManager manager;
-    public GameObject lobbyPlayerPrefab;
-
 
     void Awake() {
         instance = this;
@@ -23,25 +21,13 @@ public class NW_ManagerAdapter : MonoBehaviour {
      
 	// Starts host and broadcasting
 	public void StartHost () {
-        manager.StartHost();
 
         NW_BroadcastingAdapter.Instance.StartBroadcasting();
+        manager.StartHost();
     }
 
     public void StopHost() {
         manager.StopHost();
-    }
-
-    public void AddLobbyPlayer(GameObject nwPlayer) {
-        GameObject go = Instantiate(lobbyPlayerPrefab);
-        LobbyPlayer player = go.GetComponent<LobbyPlayer>();
-        if (player == null)
-            return;
-
-        player.networkPlayer = nwPlayer;
-
-        //manager.SpawnObject(go);
-        NetworkServer.Spawn(go);
     }
 
 

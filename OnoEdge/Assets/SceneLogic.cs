@@ -10,23 +10,24 @@ public class SceneLogic : MonoBehaviour {
         }
     }
 
-    public bool isServer = false;
+    public static bool isServer = false;
 
     #region unity callbacks
     void Awake() {
         instance = this;
     }
-    void Start() {
-        DontDestroyOnLoad(gameObject);
-    }
+
     #endregion
 
     #region public
     public void GoToLobby(bool asServer) {
-        if (asServer)
-            isServer = true;
+        isServer = asServer;
 
         SceneManager.LoadScene("lobby");
+    }
+
+    public void GotoStartScreen() {
+        SceneManager.LoadScene("start");
     }
 
     public void StartGame() {
@@ -34,5 +35,4 @@ public class SceneLogic : MonoBehaviour {
     }
 
     #endregion
-
 }

@@ -3,12 +3,27 @@ using System.Collections;
 using UnityEngine.Networking;
 
 public class Player : NetworkBehaviour {
+    [SyncVar]
+    public bool playerIsReady = false;
+
+    [SyncVar(hook = "PlayerNumberChanged")]
+    public int playerNumber = 0;
 
     private Gun gun;
     private AudioSource audioSource;
     private PlayerSounds playerSounds;
 
     public int dimensions = 2;
+    public GameObject lobbyEntryPrefab;
+    public LobbyPlayerEntry playerEntry;
+
+    //// player activation
+    //private bool activated = false;
+    //public bool Activated {
+    //    get {
+    //        return activated;
+    //    }
+    //}
 
     // rotation of player
     private float gyroSpeed = 25.0f;
@@ -24,18 +39,10 @@ public class Player : NetworkBehaviour {
     private float rollThreshold = 0.1f;
     private float rollSpeed = 4.0f;
 
-
     #region unity callbacks
-    public override void OnStartLocalPlayer() {
-        GetComponentInChildren<PlayerStyle>().SetColor(1);
-    }
-
-    void OnEnable() {
-        cameraMounting = Camera.main.transform.parent;
-    }
-
     void Start() {
         DontDestroyOnLoad(gameObject);
+
         gun = GetComponentInChildren<Gun>();
         audioSource = GetComponent<AudioSource>();
         playerSounds = GetComponent<PlayerSounds>();
@@ -44,13 +51,14 @@ public class Player : NetworkBehaviour {
             Input.gyro.enabled = true;
             cameraMounting = Camera.main.transform.parent;
             bodyTransform = GetComponentInChildren<PlayerOrbit>().transform;
-            CmdSpawnLobbyPlayer();
-        }
+            CmdCountPlayers();
 
-        gameObject.SetActive(false);
+        }
+        CreateUIEntry(isLocalPlayer);
+
+        //gameObject.SetActive(false);
     }
 
-	// Update is called once per frame
 	void Update () {
         if (!isLocalPlayer)
             return;
@@ -108,8 +116,44 @@ public class Player : NetworkBehaviour {
         rotationDirection -= transform.rotation.eulerAngles.z;
         Roll(rotationDirection);
     }
+
+    void OnDestroy() {
+        if (Lobby.Instance)
+            Lobby.Instance.RemovePlayer(this);
+    }
+
     #endregion
 
+    #region public 
+    public void Activate() {
+        gameObject.SetActive(true);
+        //activated = true;
+        cameraMounting = Camera.main.transform.parent;
+    }
+    public void Deactivate() {
+        gameObject.SetActive(false);
+        //activated = false;
+    }
+
+    public void CreateUIEntry(bool isLocal) {
+        GameObject go = Instantiate(lobbyEntryPrefab);
+        playerEntry = go.GetComponent<LobbyPlayerEntry>();
+        if (playerEntry == null)
+            return;
+
+        playerEntry.player = this;
+        playerEntry.playerNumber = playerNumber;
+
+        if (isLocal) {
+            playerEntry.localPlayer = true;
+        }
+
+        Lobby.Instance.AddPlayer(this);
+    }
+    #endregion
+
+
+    #region private
     // roll ship
     private void Roll(float roll) {
         Vector3 inter;
@@ -127,8 +171,10 @@ public class Player : NetworkBehaviour {
         bodyTransform.localRotation = Quaternion.Lerp(bodyTransform.localRotation, Quaternion.Euler(inter), Time.deltaTime * speed);
     }
 
-    #region private
     private void MoveCamera() {
+        if (cameraMounting == null)
+            return;
+
         cameraMounting.rotation = Quaternion.Lerp(cameraMounting.rotation, this.transform.rotation, Time.deltaTime * 10);
     }
     #endregion
@@ -137,9 +183,20 @@ public class Player : NetworkBehaviour {
     //---- Network Communication -----
     //--------------------------------
     #region unet
+    // [SyncVar] hook -> playerNumber
+    void PlayerNumberChanged(int value) {
+        GetComponentInChildren<PlayerStyle>().SetColor(playerNumber);
+
+        playerNumber = value;
+        UI_LobbyList lobbyList = FindObjectOfType<UI_LobbyList>();
+        if (lobbyList == null)
+            return;
+        lobbyList.UpdateEntries();
+    }
+
     [Command]
-    private void CmdSpawnLobbyPlayer() {
-        NW_ManagerAdapter.Instance.AddLobbyPlayer(gameObject);
+    private void CmdCountPlayers() {
+        playerNumber = GameData.Instance.numberOfPlayers++;
     }
 
     [Command]
@@ -157,8 +214,12 @@ public class Player : NetworkBehaviour {
 
     [Command]
     public void CmdDestroyObject(GameObject obj) {
-        //Destroy(obj);
         NetworkServer.Destroy(obj);
+    }
+
+    [Command]
+    public void CmdPlayerReady() {
+        playerIsReady = !playerIsReady;
     }
     //--------------------------------
     //--------------------------------

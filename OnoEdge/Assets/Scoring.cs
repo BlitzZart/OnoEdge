@@ -16,6 +16,14 @@ public class Scoring : NetworkBehaviour {
 
     private Text ui_score;
 
+    public void DestroyedEnemy() {
+        if (isServer) {
+            Score++;
+        }
+        else {
+            CmdDestroyedEnemy();
+        }
+    }
 
     [Command]
     public void CmdDestroyedEnemy() {

@@ -524,7 +524,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c93bc8e8ed8b4af49891c97f1c8788cc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  playerIsReady: 0
+  playerNumber: 0
   dimensions: 2
+  lobbyEntryPrefab: {fileID: 129936, guid: da6b15b9d53f8d84f83dd603d62addcd, type: 2}
 --- !u!114 &11476430
 MonoBehaviour:
   m_ObjectHideFlags: 1

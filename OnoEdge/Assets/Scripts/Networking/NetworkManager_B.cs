@@ -4,9 +4,6 @@ using UnityEngine.Networking;
 using System.Collections.Generic;
 
 public class NetworkManager_B : NetworkManager {
-
-    public static int numberOfPlayers = 0;
-
     private static NetworkManager_B instance;
     public static NetworkManager_B Instance {
         get {
@@ -18,8 +15,11 @@ public class NetworkManager_B : NetworkManager {
 
     public GameObject enemyPrefab, baseBrefab;
 
+    public bool gameRunning = false;
+
     private float enemySpawnDistance = 150;
-    private float spawnRate = 2;
+    private float stdSpawnRate = 3;
+    private float spawnRate = 3;
 
 
     //this awake causes strange network errors / maybe because this class derives from NetworkManager(which also uses Awake() to init singleton)
@@ -31,9 +31,10 @@ public class NetworkManager_B : NetworkManager {
         instance = this;
     }
 
-    public override void OnStartServer() {
-        //Invoke("SpawnOnBegin", 0.5f);
-        //InvokeRepeating("SpawnEnemy", spawnRate, spawnRate);
+    public void StartGame() {
+        gameRunning = true;
+        Invoke("SpawnOnBegin", 0.5f);
+        InvokeRepeating("SpawnEnemy", spawnRate, spawnRate);
     }
 
     void SpawnOnBegin() {
@@ -50,9 +51,9 @@ public class NetworkManager_B : NetworkManager {
         NetworkServer.Spawn(enemy);
     }
 
-    //public void SpawnObject(GameObject go) {
-    //    NetworkServer.Spawn(go);
-    //}
+    public void SpawnObject(GameObject go) {
+        NetworkServer.Spawn(go);
+    }
 
     public override void OnServerConnect(NetworkConnection conn) {
         base.OnServerConnect(conn);
@@ -73,12 +74,15 @@ public class NetworkManager_B : NetworkManager {
 
         Player[] players = FindObjectsOfType<Player>();
 
-        float rate = spawnRate;
+        spawnRate = stdSpawnRate;
 
         if (numPlayers + offset > 0)
-            rate = spawnRate / (numPlayers + offset);
+            spawnRate = stdSpawnRate / (numPlayers + offset);
 
-        //InvokeRepeating("SpawnEnemy", spawnRate, rate);
+        if (!gameRunning)
+            return;
+
+        InvokeRepeating("SpawnEnemy", stdSpawnRate, spawnRate);
     }
 
 

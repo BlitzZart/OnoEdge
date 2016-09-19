@@ -12,7 +12,7 @@ GameObject:
   - 23: {fileID: 2302854}
   - 114: {fileID: 11407816}
   - 114: {fileID: 11409708}
-  m_Layer: 11
+  m_Layer: 0
   m_Name: Body
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -27,9 +27,7 @@ GameObject:
   serializedVersion: 4
   m_Component:
   - 4: {fileID: 452440}
-  - 135: {fileID: 13526704}
-  - 114: {fileID: 11458352}
-  m_Layer: 11
+  m_Layer: 0
   m_Name: EnemyMaster
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -71,7 +69,7 @@ MeshRenderer:
   m_CastShadows: 0
   m_ReceiveShadows: 0
   m_Materials:
-  - {fileID: 2100000, guid: f0a51afde72d61f489c4ec92ebd8654c, type: 2}
+  - {fileID: 2100000, guid: 7dfc781fe9e9d6c4db64e3eb3848d805, type: 2}
   m_SubsetIndices: 
   m_StaticBatchRoot: {fileID: 0}
   m_UseLightProbes: 1
@@ -125,30 +123,6 @@ MonoBehaviour:
   randomPower: 1
   speed: 1
   rate: 0.1
---- !u!114 &11458352
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 177182}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e4f99efcbe1b9324888a4777f91c3f96, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  maxHp: 10
---- !u!135 &13526704
-SphereCollider:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 177182}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.85
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1001 &100100000
 Prefab:
   m_ObjectHideFlags: 1

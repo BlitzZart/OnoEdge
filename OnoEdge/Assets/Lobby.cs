@@ -10,22 +10,25 @@ public class Lobby : MonoBehaviour {
         }
     }
 
-    private List<LobbyPlayer> players;
+    private List<Player> players;
+    private UI_LobbyList lobbyList;
 
+    #region unity callbacks
     void Awake() {
         instance = this;
     }
 
     // Use this for initialization
     void Start() {
-        players = new List<LobbyPlayer>();
+        players = new List<Player>();
+        lobbyList = FindObjectOfType<UI_LobbyList>();
 
-        if (SceneLogic.Instance.isServer) {
+
+        if (SceneLogic.isServer) {
             NW_ManagerAdapter.Instance.StartHost();
         }
         else {
             NW_BroadcastingAdapter.Instance.StartListening();
-            
         }
     }
 
@@ -33,24 +36,41 @@ public class Lobby : MonoBehaviour {
         CheckPlayersReady();
 
     }
+    #endregion
 
-    public void AddPlayer(LobbyPlayer newPlayer) {
+    #region public
+    public void ActivatePlayers() {
+        foreach (Player item in players) {
+            item.Activate();
+        }
+    }
+
+    public void AddPlayer(Player newPlayer) {
         players.Add(newPlayer);
+        lobbyList.AddEntry(newPlayer.playerEntry);
     }
 
-    public void RemovePlayer(LobbyPlayer leaving) {
+    public void RemovePlayer(Player leaving) {
         players.Remove(leaving);
+        lobbyList.AddEntry(leaving.playerEntry);
     }
 
-    // Update is called once per frame
+    public void LeaveLobby() {
+        SceneLogic.Instance.GotoStartScreen();
+    }
+    #endregion
+
+    #region private
     private void CheckPlayersReady () {
         if (players.Count < 1)
             return;
 
-        foreach (LobbyPlayer item in players) {
+        foreach (Player item in players) {
             if (!item.playerIsReady)
                 return;
         }
+        lobbyList.HideUI();
         SceneLogic.Instance.StartGame();
     }
+    #endregion
 }

@@ -8,13 +8,13 @@ public class LobbyPlayerEntry : MonoBehaviour {
     public int playerNumber = 0;
     public bool localPlayer = false;
 
-    public LobbyPlayer lobbyPlayer;
+    public Player player;
 
     public void ChangeReadyState() {
         if (!localPlayer)
             return;
 
-        lobbyPlayer.CmdPlayerReady();
+        player.CmdPlayerReady();
     }
 
     #region public
@@ -28,13 +28,10 @@ public class LobbyPlayerEntry : MonoBehaviour {
     }
 
     void Update() {
-        text.text = "Player " + playerNumber;
-        if (lobbyPlayer.playerIsReady) {
+        text.text = "Player " + (playerNumber + 1);
+        if (player.playerIsReady) {
             text.text += " - READY";
         }
-
     }
     #endregion
-
-
 }

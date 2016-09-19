@@ -18,6 +18,7 @@ public class NW_BroadcastingAdapter : NetworkDiscovery {
     }
 
     public override void OnReceivedBroadcast(string fromAddress, string data) {
+        // wrong data/game
         if (data.Equals(this.data))
             return;
         //if (NetworkManager.singleton.client.isConnected)
@@ -43,12 +44,10 @@ public class NW_BroadcastingAdapter : NetworkDiscovery {
     }
 
     public void StartListening() {
-
         Initialize();
         StartAsClient();
 
         //StartCoroutine(LOL());
-
     }
 
     IEnumerator LOL() {
@@ -58,10 +57,11 @@ public class NW_BroadcastingAdapter : NetworkDiscovery {
     }
 
     public void StartBroadcasting() {
-        print("broadcast");
-        Initialize();
 
         broadcastData = data;
+        Initialize();
+
+        
         StartAsServer();
     }
 }

@@ -17,4 +17,8 @@ public class UI_Features: MonoBehaviour {
         }
 
     }
+
+    public void QuitGame() {
+        Application.Quit();
+    }
 }

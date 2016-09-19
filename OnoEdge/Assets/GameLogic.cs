@@ -4,13 +4,10 @@ using UnityEngine.Networking;
 
 public class GameLogic : MonoBehaviour {
 
-	// Use this for initialization
-	void Start () {
 
-	}
-	
-	// Update is called once per frame
-	void Update () {
-	
+    void Start () {
+        Lobby.Instance.ActivatePlayers();
+        NetworkManager_B.Instance.StartGame();
+        Destroy(Lobby.Instance.gameObject);
 	}
 }

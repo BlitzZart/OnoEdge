@@ -52,17 +52,14 @@ public class Enemy : NetworkBehaviour {
                 NetworkServer.Destroy(other.gameObject);
                 //player.CmdDestroyObject(other.gameObject);
             } else { // dead
-                Scoring.Instance.CmdDestroyedEnemy();
+                Scoring.Instance.DestroyedEnemy();
                 NetworkServer.Destroy(other.gameObject);
-                //player.CmdDestroyObject(other.gameObject);
                 NetworkServer.Destroy(gameObject);
-                //player.CmdDestroyObject(gameObject);
             }
         }
 
         if (other.tag == "Base") {
             NetworkServer.Destroy(gameObject);
-            //player.CmdDestroyObject(gameObject);
         }
     }
 }
