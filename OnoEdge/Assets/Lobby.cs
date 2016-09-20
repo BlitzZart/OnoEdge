@@ -10,7 +10,16 @@ public class Lobby : MonoBehaviour {
         }
     }
 
+
+
     private List<Player> players;
+    public List<Player> Players {
+        get {
+            return players;
+        }
+    }
+
+    private bool loadingDone;
     private UI_LobbyList lobbyList;
 
     #region unity callbacks
@@ -34,19 +43,16 @@ public class Lobby : MonoBehaviour {
 
     void Update() {
         CheckPlayersReady();
-
     }
     #endregion
 
     #region public
-    public void ActivatePlayers() {
-        foreach (Player item in players) {
-            item.Activate();
-        }
-    }
-
     public void AddPlayer(Player newPlayer) {
         players.Add(newPlayer);
+
+        if (lobbyList == null)
+            lobbyList = FindObjectOfType<UI_LobbyList>();
+
         lobbyList.AddEntry(newPlayer.playerEntry);
     }
 
@@ -62,6 +68,9 @@ public class Lobby : MonoBehaviour {
 
     #region private
     private void CheckPlayersReady () {
+        if (loadingDone)
+            return;
+
         if (players.Count < 1)
             return;
 
@@ -69,6 +78,7 @@ public class Lobby : MonoBehaviour {
             if (!item.playerIsReady)
                 return;
         }
+        loadingDone = true;
         lobbyList.HideUI();
         SceneLogic.Instance.StartGame();
     }

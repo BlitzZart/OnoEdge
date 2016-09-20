@@ -8,18 +8,19 @@ public class DebugText : MonoBehaviour {
         get { return instance; }
     }
 
-    void Awake() {
-        instance = this;
-    }
-
     private Text text;
 
-    void Start() {
+    void Awake() {
+        instance = this;
         text = GetComponent<Text>();
     }
 
+
+
     public void AddText(string text) {
+        if (this.text == null)
+            return;
+
         this.text.text = /*this.text.text + "\n" +*/ text;
     }
-
 }

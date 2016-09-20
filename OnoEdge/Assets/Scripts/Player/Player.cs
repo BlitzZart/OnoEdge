@@ -13,7 +13,21 @@ public class Player : NetworkBehaviour {
     private AudioSource audioSource;
     private PlayerSounds playerSounds;
 
-    public int dimensions = 2;
+    private int dimensions = 3;
+    /// <summary>
+    /// set dimension (1-3)
+    /// </summary>
+    public int Dimensions {
+        get {
+            return dimensions;
+        }
+        set {
+            if (value < 1 || value > 3)
+                return;
+            dimensions = value;
+        }
+    }
+
     public GameObject lobbyEntryPrefab;
     public LobbyPlayerEntry playerEntry;
 
@@ -121,7 +135,6 @@ public class Player : NetworkBehaviour {
         if (Lobby.Instance)
             Lobby.Instance.RemovePlayer(this);
     }
-
     #endregion
 
     #region public 

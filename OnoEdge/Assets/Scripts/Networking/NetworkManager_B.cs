@@ -2,6 +2,7 @@
 using System.Collections;
 using UnityEngine.Networking;
 using System.Collections.Generic;
+using UnityEngine.SceneManagement;
 
 public class NetworkManager_B : NetworkManager {
     private static NetworkManager_B instance;
@@ -13,7 +14,7 @@ public class NetworkManager_B : NetworkManager {
         }
     }
 
-    public GameObject enemyPrefab, baseBrefab;
+    public GameObject enemyPrefab, baseBrefab, gameLogicPrefab;
 
     public bool gameRunning = false;
 
@@ -27,6 +28,17 @@ public class NetworkManager_B : NetworkManager {
     //    instance = this;
     //}
 
+    void OnLevelWasLoaded() {
+        print("active scene: " + SceneManager.GetActiveScene().name);
+        if (SceneManager.GetActiveScene().name.Equals("play")) {
+            if (!NetworkServer.active)
+                return;
+
+            GameObject gl = Instantiate(gameLogicPrefab);
+            NetworkServer.Spawn(gl);
+        }
+    }
+
     void Start() {
         instance = this;
     }
@@ -38,11 +50,16 @@ public class NetworkManager_B : NetworkManager {
     }
 
     void SpawnOnBegin() {
+        if (!NetworkServer.active)
+            return;
         GameObject theBase = Instantiate(baseBrefab);
         NetworkServer.Spawn(theBase);
     }
 
     void SpawnEnemy() {
+        if (!NetworkServer.active)
+            return;
+
         GameObject enemy = Instantiate(
             enemyPrefab, 
             Random.insideUnitCircle * enemySpawnDistance,

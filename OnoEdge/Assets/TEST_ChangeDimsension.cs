@@ -21,8 +21,8 @@ public class TEST_ChangeDimsension : MonoBehaviour {
     public void ChangeDimension() {
         Player player = GetLocalPlayer();
         if (player != null) {
-            player.dimensions = ((player.dimensions + 1) % 3) + 1; // start on 1 and cap on 3
-            text.text = "Dimensions :" + player.dimensions;
+            player.Dimensions = ((player.Dimensions + 1) % 3) + 1; // start on 1 and cap on 3
+            text.text = "Dimensions :" + player.Dimensions;
         }
     }
 }

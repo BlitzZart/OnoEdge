@@ -46,22 +46,12 @@ public class NW_BroadcastingAdapter : NetworkDiscovery {
     public void StartListening() {
         Initialize();
         StartAsClient();
-
-        //StartCoroutine(LOL());
-    }
-
-    IEnumerator LOL() {
-        yield return new WaitForSeconds(1);
-        Initialize();
-        StartAsClient();
     }
 
     public void StartBroadcasting() {
-
         broadcastData = data;
         Initialize();
-
-        
+  
         StartAsServer();
     }
 }

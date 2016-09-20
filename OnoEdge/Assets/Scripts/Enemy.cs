@@ -52,7 +52,7 @@ public class Enemy : NetworkBehaviour {
                 NetworkServer.Destroy(other.gameObject);
                 //player.CmdDestroyObject(other.gameObject);
             } else { // dead
-                Scoring.Instance.DestroyedEnemy();
+                NW_GameLogic.Instance.DestroyedEnemy();
                 NetworkServer.Destroy(other.gameObject);
                 NetworkServer.Destroy(gameObject);
             }

@@ -7,9 +7,8 @@ public class UI_LobbyList : MonoBehaviour {
     private int gap = 128;
 
     private List<LobbyPlayerEntry> playerEntries;
-    
 
-	void Start () {
+    void Start () {
         playerEntries = new List<LobbyPlayerEntry>();
 	}
 
