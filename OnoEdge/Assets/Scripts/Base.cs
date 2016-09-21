@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System;
 
 public class Base : MonoBehaviour {
     private Light baseLight;
@@ -7,12 +8,20 @@ public class Base : MonoBehaviour {
 
     public Color saveColor, dangerColor;
 
+
+
+
 	// Use this for initialization
 	void Start () {
         baseLight = GetComponentInChildren<Light>();
         if (baseLight != null)
             baseLight.color = saveColor;
-	}
+
+        Player[] players = FindObjectsOfType<Player>();
+        foreach (Player item in players) {
+            item.AssignBase(this);
+        }
+    }
 
     void MsgColliderEmpty() {
         //print("empty ");
@@ -33,8 +42,6 @@ public class Base : MonoBehaviour {
                 baseLight.color = saveColor;
     }
 
-    // Update is called once per frame
-    void Update () {
-
-	}
+    void OnDestroy () {
+    }
 }

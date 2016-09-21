@@ -3,8 +3,10 @@ using System.Collections;
 using UnityEngine.Networking;
 
 public class Bullet : NetworkBehaviour {
-
     private float lifeTime = 5;
+    public int damage = 5;
+    [SyncVar]
+    public int playerNumber;
 
     // Use this for initialization
     void Start () {
@@ -17,10 +19,5 @@ public class Bullet : NetworkBehaviour {
     IEnumerator ShowDelayed() {
         yield return new WaitForSeconds(0.04f);
         GetComponent<MeshRenderer>().enabled = true;
-    }
-    
-
-    void OnDestroy() {
-        // make some noise
     }
 }

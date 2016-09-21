@@ -53,12 +53,12 @@ public class Lobby : MonoBehaviour {
         if (lobbyList == null)
             lobbyList = FindObjectOfType<UI_LobbyList>();
 
-        lobbyList.AddEntry(newPlayer.playerEntry);
+        lobbyList.AddEntry(newPlayer.lobbyEntryPrefab);
     }
 
     public void RemovePlayer(Player leaving) {
         players.Remove(leaving);
-        lobbyList.AddEntry(leaving.playerEntry);
+        lobbyList.AddEntry(leaving.lobbyEntryPrefab);
     }
 
     public void LeaveLobby() {

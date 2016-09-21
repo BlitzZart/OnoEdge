@@ -43,8 +43,11 @@ public class NetworkManager_B : NetworkManager {
         instance = this;
     }
 
+    // TODO: move this and other game logic to game logic
     public void StartGame() {
         gameRunning = true;
+        NW_GameLogic.Instance.StartGame();
+
         Invoke("SpawnOnBegin", 0.5f);
         InvokeRepeating("SpawnEnemy", spawnRate, spawnRate);
     }
@@ -59,10 +62,28 @@ public class NetworkManager_B : NetworkManager {
     void SpawnEnemy() {
         if (!NetworkServer.active)
             return;
+        Vector3 spawnPos;
+
+        // TODO: add min distance
+        switch (NW_GameLogic.Instance.Dimension) {
+            case (1):
+                spawnPos = Random.insideUnitCircle * enemySpawnDistance;
+                break;
+            case (2):
+                spawnPos = Random.insideUnitCircle * enemySpawnDistance;
+                break;
+            case (3): // spawn in sphere
+                spawnPos = Random.insideUnitSphere * enemySpawnDistance;
+                break;
+            default:
+                spawnPos = Random.insideUnitCircle * enemySpawnDistance;
+                break;
+        }
+
 
         GameObject enemy = Instantiate(
             enemyPrefab, 
-            Random.insideUnitCircle * enemySpawnDistance,
+            spawnPos,
             Quaternion.identity) as GameObject;
 
         NetworkServer.Spawn(enemy);

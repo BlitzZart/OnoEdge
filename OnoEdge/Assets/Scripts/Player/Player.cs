@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.Networking;
+using System;
 
 public class Player : NetworkBehaviour {
     [SyncVar]
@@ -9,27 +10,27 @@ public class Player : NetworkBehaviour {
     [SyncVar(hook = "PlayerNumberChanged")]
     public int playerNumber = 0;
 
+    private Base playerBase;
     private Gun gun;
     private AudioSource audioSource;
     private PlayerSounds playerSounds;
 
-    private int dimensions = 3;
+    private int dimension = 2;
     /// <summary>
     /// set dimension (1-3)
     /// </summary>
-    public int Dimensions {
+    public int Dimension {
         get {
-            return dimensions;
+            return dimension;
         }
         set {
             if (value < 1 || value > 3)
                 return;
-            dimensions = value;
+            dimension = value;
         }
     }
 
-    public GameObject lobbyEntryPrefab;
-    public LobbyPlayerEntry playerEntry;
+    public LobbyPlayerEntry lobbyEntryPrefab;
 
     //// player activation
     //private bool activated = false;
@@ -42,6 +43,7 @@ public class Player : NetworkBehaviour {
     // rotation of player
     private float gyroSpeed = 25.0f;
     private float keyboardRotationSpeed = 90.0f;
+    private float precisionMoveFactor = 0.5f;
 
     // rotation of camera
     private Transform cameraMounting;
@@ -57,6 +59,9 @@ public class Player : NetworkBehaviour {
     void Start() {
         DontDestroyOnLoad(gameObject);
 
+        NW_GameLogic.ChangeDimensionEvent += OnChangeDimension;
+        //NW_GameLogic.GameStartedEvent += OnGameStarted;
+
         gun = GetComponentInChildren<Gun>();
         audioSource = GetComponent<AudioSource>();
         playerSounds = GetComponent<PlayerSounds>();
@@ -64,6 +69,9 @@ public class Player : NetworkBehaviour {
         if (isLocalPlayer) {
             Input.gyro.enabled = true;
             cameraMounting = Camera.main.transform.parent;
+
+            //transform.SetParent(cameraMounting);
+
             bodyTransform = GetComponentInChildren<PlayerOrbit>().transform;
             CmdCountPlayers();
 
@@ -73,12 +81,13 @@ public class Player : NetworkBehaviour {
         //gameObject.SetActive(false);
     }
 
-	void Update () {
+    void Update () {
         if (!isLocalPlayer)
             return;
 
         float rotationDirection = 0;
 
+        FollowBase();
         MoveCamera();
         //// transform camera 2D
         //Vector3 inter = new Vector3(cameraMounting.rotation.eulerAngles.x, 0, transform.rotation.eulerAngles.z);
@@ -87,19 +96,24 @@ public class Player : NetworkBehaviour {
         rotationDirection = transform.rotation.eulerAngles.z;
 #if UNITY_EDITOR || UNITY_STANDALONE
 
-        if (dimensions >= 2)
+        float moveBy = keyboardRotationSpeed;
+        if (Input.GetKey(KeyCode.LeftShift))
+            moveBy *= precisionMoveFactor;
+
+
+        if (dimension >= 2)
             if (Input.GetKey(KeyCode.LeftArrow)) {
-                transform.Rotate(0, 0, keyboardRotationSpeed * Time.deltaTime);
+                transform.Rotate(0, 0, moveBy * Time.deltaTime);
             } else if (Input.GetKey(KeyCode.RightArrow)) {
-                transform.Rotate(0, 0, -keyboardRotationSpeed * Time.deltaTime);
+                transform.Rotate(0, 0, -moveBy * Time.deltaTime);
             }
 
-        if (dimensions >= 3)
+        if (dimension >= 3)
             if (Input.GetKey(KeyCode.UpArrow)) {
-                transform.Rotate(-keyboardRotationSpeed * Time.deltaTime, 0, 0);
+                transform.Rotate(-moveBy * Time.deltaTime, 0, 0);
             }
             else if (Input.GetKey(KeyCode.DownArrow)) {
-                transform.Rotate(keyboardRotationSpeed * Time.deltaTime, 0, 0);
+                transform.Rotate(moveBy * Time.deltaTime, 0, 0);
             }
 
 
@@ -109,13 +123,13 @@ public class Player : NetworkBehaviour {
 #endif
 
 #if UNITY_ANDROID && !UNITY_EDITOR // do // && !UNITY_EDITOR to test with remote
-        if (dimensions == 2) {
+        if (dimension == 2) {
             transform.rotation = Quaternion.Lerp
                 (transform.rotation, Quaternion.Euler
                 (new Vector3(transform.rotation.x, transform.rotation.y, Input.gyro.attitude.eulerAngles.z)), gyroSpeed * Time.deltaTime);
         }
         else
-        if (dimensions == 3) {
+        if (dimension == 3) {
             transform.rotation = Quaternion.Lerp
                 (transform.rotation, Quaternion.Euler
                 (new Vector3(transform.rotation.x, -Input.gyro.attitude.eulerAngles.y, Input.gyro.attitude.eulerAngles.z)), gyroSpeed * Time.deltaTime);
@@ -134,8 +148,21 @@ public class Player : NetworkBehaviour {
     void OnDestroy() {
         if (Lobby.Instance)
             Lobby.Instance.RemovePlayer(this);
+
+
+        NW_GameLogic.ChangeDimensionEvent -= OnChangeDimension;
+        //NW_GameLogic.GameStartedEvent -= OnGameStarted;
     }
     #endregion
+
+    #region delegates
+    private void OnChangeDimension(int value) {
+        dimension = value;
+    }
+    //private void OnGameStarted() {
+    //}
+    #endregion
+
 
     #region public 
     public void Activate() {
@@ -148,17 +175,21 @@ public class Player : NetworkBehaviour {
         //activated = false;
     }
 
+    public void AssignBase(Base b) {
+        playerBase = b;
+    }
+
     public void CreateUIEntry(bool isLocal) {
-        GameObject go = Instantiate(lobbyEntryPrefab);
-        playerEntry = go.GetComponent<LobbyPlayerEntry>();
-        if (playerEntry == null)
+        GameObject go = Instantiate(lobbyEntryPrefab.gameObject);
+        lobbyEntryPrefab = go.GetComponent<LobbyPlayerEntry>();
+        if (lobbyEntryPrefab == null)
             return;
 
-        playerEntry.player = this;
-        playerEntry.playerNumber = playerNumber;
+        lobbyEntryPrefab.player = this;
+        lobbyEntryPrefab.playerNumber = playerNumber;
 
         if (isLocal) {
-            playerEntry.localPlayer = true;
+            lobbyEntryPrefab.localPlayer = true;
         }
 
         Lobby.Instance.AddPlayer(this);
@@ -184,11 +215,17 @@ public class Player : NetworkBehaviour {
         bodyTransform.localRotation = Quaternion.Lerp(bodyTransform.localRotation, Quaternion.Euler(inter), Time.deltaTime * speed);
     }
 
+    private void FollowBase() {
+        if (playerBase != null)
+            transform.localPosition = playerBase.transform.position;
+    }
+
     private void MoveCamera() {
         if (cameraMounting == null)
             return;
 
         cameraMounting.rotation = Quaternion.Lerp(cameraMounting.rotation, this.transform.rotation, Time.deltaTime * 10);
+        cameraMounting.position = transform.position;
     }
     #endregion
 
@@ -217,11 +254,13 @@ public class Player : NetworkBehaviour {
         GameObject bullet = Instantiate(gun.bulletPrefab, pos, transform.rotation) as GameObject;
         bullet.GetComponent<Rigidbody>().velocity = dir * speed;
         NetworkServer.Spawn(bullet);
-        RpcPlayShootSound();
+        RpcSpawnBullet();
+
+        bullet.GetComponent<Bullet>().playerNumber = playerNumber;
     }
 
     [ClientRpc]
-    public void RpcPlayShootSound() {
+    public void RpcSpawnBullet() {
         audioSource.PlayOneShot(playerSounds.shoot);
     }
 

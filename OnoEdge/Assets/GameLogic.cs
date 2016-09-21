@@ -23,7 +23,7 @@ public class GameLogic : MonoBehaviour {
     public void ChangeDimension(int dimension) {
         Player player = GetLocalPlayer();
         if (player != null) {
-            player.Dimensions = dimension;
+            player.Dimension = dimension;
         }
     }
     #endregion

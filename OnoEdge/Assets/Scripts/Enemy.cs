@@ -3,6 +3,12 @@ using System.Collections;
 using UnityEngine.Networking;
 
 public class Enemy : NetworkBehaviour {
+    public delegate void KilledEnemyDel(Enemy enemy, int playerNumber);
+    public static event KilledEnemyDel KilledEnemyEvent;
+
+    [SyncVar]
+    private int killedByPlayerNumber;
+
     public GameObject explosionParticles;
 
     private Player player; // TODO Use Base instead !?!?!?!
@@ -13,7 +19,6 @@ public class Enemy : NetworkBehaviour {
     private float moveSpeed = 2;
     private Transform target;
 
-    // Use this for initialization
     void Start() {
         target = FindObjectOfType<Base>().transform;
         player = FindObjectOfType<Player>();
@@ -23,12 +28,14 @@ public class Enemy : NetworkBehaviour {
         healthComponent = GetComponent<HealthComponent>();
     }
 
-    // Update is called once per frame
     void Update() {
         transform.position = Vector3.MoveTowards(transform.position, target.position, moveSpeed * Time.deltaTime);
     }
 
     void OnDestroy() {
+        if (KilledEnemyEvent != null)
+            KilledEnemyEvent(this, killedByPlayerNumber);
+
         if (!NetworkManager.singleton.isNetworkActive)
             return; // don't spawn stuff if game shuts down
 
@@ -41,17 +48,17 @@ public class Enemy : NetworkBehaviour {
 
     void OnTriggerEnter(Collider other) {
         if (other.gameObject.layer == LayerMask.NameToLayer("PlayerBullet")) {
-
+            Bullet bullet = other.GetComponent<Bullet>();
             // take dmg
-            healthComponent.Hit(5); // TODO: use proper value
+            healthComponent.Hit(bullet.damage);
 
             if (healthComponent.Hp > 0) { // hit
                 if (audioSource != null)
                     audioSource.PlayOneShot(playerSounds.explodeEnemy, 1.7f);
 
                 NetworkServer.Destroy(other.gameObject);
-                //player.CmdDestroyObject(other.gameObject);
             } else { // dead
+                CmdKilledEnemy(bullet.playerNumber);
                 NW_GameLogic.Instance.DestroyedEnemy();
                 NetworkServer.Destroy(other.gameObject);
                 NetworkServer.Destroy(gameObject);
@@ -59,7 +66,13 @@ public class Enemy : NetworkBehaviour {
         }
 
         if (other.tag == "Base") {
+            CmdKilledEnemy(-1); ; // -1 means it hits the base
             NetworkServer.Destroy(gameObject);
         }
+    }
+
+    [Command]
+    private void CmdKilledEnemy(int playerNumber) {
+        killedByPlayerNumber = playerNumber;
     }
 }

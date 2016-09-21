@@ -2,7 +2,7 @@
 using System.Collections;
 
 public class LaserLine : MonoBehaviour {
-    private MeshRenderer laserDot;
+    public MeshRenderer laserDot, targetMarker;
     private LineRenderer laserLine;
     
 	// Use this for initialization
@@ -19,12 +19,13 @@ public class LaserLine : MonoBehaviour {
             float distance = Vector3.Distance(hitInfo.point, transform.position - transform.up * 2);
             laserLine.SetPosition(0, Vector3.up * distance);
 
-            laserDot.enabled = true;
+            laserDot.enabled = targetMarker.enabled =  true;
             laserDot.transform.position = hitInfo.point;
+            targetMarker.transform.position = hitInfo.transform.position;
         }
         else {
             laserLine.SetPosition(0, Vector3.up * 256);
-            laserDot.enabled = false;
+            laserDot.enabled = targetMarker.enabled = false;
         }
 
 
