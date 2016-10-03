@@ -10,6 +10,9 @@ public class Player : NetworkBehaviour {
     [SyncVar(hook = "PlayerNumberChanged")]
     public int playerNumber = 0;
 
+    [SyncVar]
+    public float rotationZ = 0;
+
     private Base playerBase;
     private Gun gun;
     private AudioSource audioSource;
@@ -82,67 +85,14 @@ public class Player : NetworkBehaviour {
     }
 
     void Update () {
-        if (!isLocalPlayer)
-            return;
-
-        float rotationDirection = 0;
-
         FollowBase();
-        MoveCamera();
-        //// transform camera 2D
-        //Vector3 inter = new Vector3(cameraMounting.rotation.eulerAngles.x, 0, transform.rotation.eulerAngles.z);
-        //cameraMounting.rotation = Quaternion.Lerp(cameraMounting.rotation, Quaternion.Euler(inter), cameraRotationSpeed * Time.deltaTime);
 
-        rotationDirection = transform.rotation.eulerAngles.z;
-#if UNITY_EDITOR || UNITY_STANDALONE
-
-        float moveBy = keyboardRotationSpeed;
-        if (Input.GetKey(KeyCode.LeftShift))
-            moveBy *= precisionMoveFactor;
-
-
-        if (dimension >= 2)
-            if (Input.GetKey(KeyCode.LeftArrow)) {
-                transform.Rotate(0, 0, moveBy * Time.deltaTime);
-            } else if (Input.GetKey(KeyCode.RightArrow)) {
-                transform.Rotate(0, 0, -moveBy * Time.deltaTime);
-            }
-
-        if (dimension >= 3)
-            if (Input.GetKey(KeyCode.UpArrow)) {
-                transform.Rotate(-moveBy * Time.deltaTime, 0, 0);
-            }
-            else if (Input.GetKey(KeyCode.DownArrow)) {
-                transform.Rotate(moveBy * Time.deltaTime, 0, 0);
-            }
-
-
-        if (Input.GetKeyDown(KeyCode.LeftControl)) {
-            gun.Shoot();
+        if (isLocalPlayer) {
+            LocalPlayerMovement();
+            CmdSetRotation(transform.localRotation.eulerAngles.z);
+        } else {
+            OtherPlayerMovement();
         }
-#endif
-
-#if UNITY_ANDROID && !UNITY_EDITOR // do // && !UNITY_EDITOR to test with remote
-        if (dimension == 2) {
-            transform.rotation = Quaternion.Lerp
-                (transform.rotation, Quaternion.Euler
-                (new Vector3(transform.rotation.x, transform.rotation.y, Input.gyro.attitude.eulerAngles.z)), gyroSpeed * Time.deltaTime);
-        }
-        else
-        if (dimension == 3) {
-            transform.rotation = Quaternion.Lerp
-                (transform.rotation, Quaternion.Euler
-                (new Vector3(transform.rotation.x, -Input.gyro.attitude.eulerAngles.y, Input.gyro.attitude.eulerAngles.z)), gyroSpeed * Time.deltaTime);
-        }
-
-
-        if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began) {
-            gun.Shoot();
-        }
-#endif
-
-        rotationDirection -= transform.rotation.eulerAngles.z;
-        Roll(rotationDirection);
     }
 
     void OnDestroy() {
@@ -162,7 +112,6 @@ public class Player : NetworkBehaviour {
     //private void OnGameStarted() {
     //}
     #endregion
-
 
     #region public 
     public void Activate() {
@@ -196,8 +145,74 @@ public class Player : NetworkBehaviour {
     }
     #endregion
 
-
     #region private
+    private void LocalPlayerMovement() {
+
+        float rotationDirection = 0;
+
+        //FollowBase(); // do @ both, local player and other clients
+        MoveCamera();
+        //// transform camera 2D
+        //Vector3 inter = new Vector3(cameraMounting.rotation.eulerAngles.x, 0, transform.rotation.eulerAngles.z);
+        //cameraMounting.rotation = Quaternion.Lerp(cameraMounting.rotation, Quaternion.Euler(inter), cameraRotationSpeed * Time.deltaTime);
+
+        rotationDirection = transform.rotation.eulerAngles.z;
+//#if UNITY_EDITOR || UNITY_STANDALONE
+
+        float moveBy = keyboardRotationSpeed;
+        if (Input.GetKey(KeyCode.LeftShift))
+            moveBy *= precisionMoveFactor;
+
+
+        if (dimension >= 2)
+            if (Input.GetKey(KeyCode.LeftArrow)) {
+                transform.Rotate(0, 0, moveBy * Time.deltaTime);
+            }
+            else if (Input.GetKey(KeyCode.RightArrow)) {
+                transform.Rotate(0, 0, -moveBy * Time.deltaTime);
+            }
+
+        if (dimension >= 3)
+            if (Input.GetKey(KeyCode.UpArrow)) {
+                transform.Rotate(-moveBy * Time.deltaTime, 0, 0);
+            }
+            else if (Input.GetKey(KeyCode.DownArrow)) {
+                transform.Rotate(moveBy * Time.deltaTime, 0, 0);
+            }
+
+
+        if (Input.GetKeyDown(KeyCode.LeftControl)) {
+            gun.Shoot();
+        }
+//#endif
+
+#if UNITY_ANDROID && !UNITY_EDITOR // do // && !UNITY_EDITOR to test with remote
+        if (dimension == 2) {
+            transform.rotation = Quaternion.Lerp
+                (transform.rotation, Quaternion.Euler
+                (new Vector3(transform.rotation.x, transform.rotation.y, Input.gyro.attitude.eulerAngles.z)), gyroSpeed * Time.deltaTime);
+        }
+        else
+        if (dimension == 3) {
+            transform.rotation = Quaternion.Lerp
+                (transform.rotation, Quaternion.Euler
+                (new Vector3(transform.rotation.x, -Input.gyro.attitude.eulerAngles.y, Input.gyro.attitude.eulerAngles.z)), gyroSpeed * Time.deltaTime);
+        }
+
+
+        if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began) {
+            gun.Shoot();
+        }
+#endif
+
+        rotationDirection -= transform.rotation.eulerAngles.z;
+        Roll(rotationDirection);
+    }
+
+    private void OtherPlayerMovement() {
+        transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(0, 0, rotationZ), Time.deltaTime * 17);
+    }
+
     // roll ship
     private void Roll(float roll) {
         Vector3 inter;
@@ -242,6 +257,11 @@ public class Player : NetworkBehaviour {
         if (lobbyList == null)
             return;
         lobbyList.UpdateEntries();
+    }
+
+    [Command]
+    private void CmdSetRotation(float rotation) {
+        rotationZ = rotation;
     }
 
     [Command]

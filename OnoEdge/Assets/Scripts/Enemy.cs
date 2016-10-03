@@ -16,9 +16,10 @@ public class Enemy : NetworkBehaviour {
     private PlayerSounds playerSounds;
     private HealthComponent healthComponent;
 
-    private float moveSpeed = 2;
+    private float moveSpeed = 3;
     private Transform target;
 
+    #region unity callbacks
     void Start() {
         target = FindObjectOfType<Base>().transform;
         player = FindObjectOfType<Player>();
@@ -70,9 +71,12 @@ public class Enemy : NetworkBehaviour {
             NetworkServer.Destroy(gameObject);
         }
     }
+    #endregion
 
+    #region unet
     [Command]
     private void CmdKilledEnemy(int playerNumber) {
         killedByPlayerNumber = playerNumber;
     }
+    #endregion
 }
