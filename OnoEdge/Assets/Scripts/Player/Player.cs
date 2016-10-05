@@ -3,7 +3,7 @@ using System.Collections;
 using UnityEngine.Networking;
 using System;
 
-public class Player : NetworkBehaviour {
+public class Player : NetworkBehaviour, IFireBullet {
     [SyncVar]
     public bool playerIsReady = false;
 

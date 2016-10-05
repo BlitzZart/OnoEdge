@@ -5,9 +5,9 @@ public class Gun : MonoBehaviour {
 
     public GameObject bulletPrefab;
     public GameObject nozzle;
-    private float speed = 50;
-    private Player player;
-    public Player Player {
+    private float speed = 50f;
+    private IFireBullet player;
+    public IFireBullet Player {
         get {
             return player;
         }
@@ -15,11 +15,13 @@ public class Gun : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
-        player = GetComponentInParent<Player>();
+        player = GetComponentInParent<IFireBullet>();
 	}
-	
+
     public void Shoot() {
-        //if (player.Activated)
-            player.CmdFireBullet(nozzle.transform.position, transform.up, speed);
+        Shoot(transform.up);
+    }
+    public void Shoot(Vector3 direction) {
+        player.CmdFireBullet(nozzle.transform.position, direction, speed);
     }
 }

@@ -1,8 +1,12 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.Networking;
+using System;
 
-public class Enemy : NetworkBehaviour {
+/// <summary>
+/// simple enemy base class
+/// </summary>
+public class Enemy : NetworkBehaviour, IFireBullet {
     public delegate void KilledEnemyDel(Enemy enemy, int playerNumber);
     public static event KilledEnemyDel KilledEnemyEvent;
 
@@ -11,26 +15,32 @@ public class Enemy : NetworkBehaviour {
 
     public GameObject explosionParticles;
 
+    private Gun gun;
+
     private Player player; // TODO Use Base instead !?!?!?!
     private AudioSource audioSource;
     private PlayerSounds playerSounds;
     private HealthComponent healthComponent;
 
     private float moveSpeed = 3;
-    private Transform target;
+    [HideInInspector]
+    public Transform target;
 
     #region unity callbacks
     void Start() {
         target = FindObjectOfType<Base>().transform;
         player = FindObjectOfType<Player>();
 
-        audioSource = player.GetComponent<AudioSource>();
+        gun = GetComponentInChildren<Gun>();
+
+        audioSource = GetComponent<AudioSource>();
         playerSounds = player.GetComponent<PlayerSounds>();
         healthComponent = GetComponent<HealthComponent>();
     }
 
     void Update() {
         transform.position = Vector3.MoveTowards(transform.position, target.position, moveSpeed * Time.deltaTime);
+        transform.rotation = Quaternion.LookRotation(target.position);
     }
 
     void OnDestroy() {
@@ -58,7 +68,8 @@ public class Enemy : NetworkBehaviour {
                     audioSource.PlayOneShot(playerSounds.explodeEnemy, 1.7f);
 
                 NetworkServer.Destroy(other.gameObject);
-            } else { // dead
+            }
+            else { // dead
                 CmdKilledEnemy(bullet.playerNumber);
                 NW_GameLogic.Instance.DestroyedEnemy();
                 NetworkServer.Destroy(other.gameObject);
@@ -77,6 +88,26 @@ public class Enemy : NetworkBehaviour {
     [Command]
     private void CmdKilledEnemy(int playerNumber) {
         killedByPlayerNumber = playerNumber;
+    }
+    [Command]
+    public void CmdFireBullet(Vector3 pos, Vector3 dir, float speed) {
+        Vector3 direction;
+        if (dir != Vector3.zero)
+            direction = dir;
+        else
+            direction = (target.position - transform.position).normalized;
+
+        GameObject bullet = Instantiate(gun.bulletPrefab, pos, transform.rotation) as GameObject;
+        bullet.GetComponent<Rigidbody>().velocity = direction * speed;
+
+        NetworkServer.Spawn(bullet);
+        RpcSpawnBullet();
+
+        bullet.GetComponent<Bullet>().playerNumber = -1;
+    }
+    [ClientRpc]
+    public void RpcSpawnBullet() {
+        audioSource.PlayOneShot(playerSounds.shoot);
     }
     #endregion
 }

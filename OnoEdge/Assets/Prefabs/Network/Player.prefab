@@ -683,6 +683,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerIsReady: 0
   playerNumber: 0
+  rotationZ: 0
   lobbyEntryPrefab: {fileID: 11441948, guid: da6b15b9d53f8d84f83dd603d62addcd, type: 2}
 --- !u!114 &11476430
 MonoBehaviour:
