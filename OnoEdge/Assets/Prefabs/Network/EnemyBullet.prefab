@@ -226,6 +226,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   hitParticles: {fileID: 1000010228435854, guid: 86c3fddacdb37a84da24dd2af99b9621,
     type: 2}
+  lifeTime: 15
   damage: 5
   playerNumber: 0
 --- !u!114 &11487580

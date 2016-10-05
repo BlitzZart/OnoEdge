@@ -264,7 +264,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bulletPrefab: {fileID: 143292, guid: 617a24b0788a54a4e98711f7c077d15f, type: 2}
   nozzle: {fileID: 154066}
-  speed: 25
+  speed: 13
 --- !u!114 &11411144
 MonoBehaviour:
   m_ObjectHideFlags: 1

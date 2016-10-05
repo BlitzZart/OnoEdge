@@ -4,7 +4,7 @@ using UnityEngine.Networking;
 
 public class Bullet : NetworkBehaviour {
     public GameObject hitParticles;
-    private float lifeTime = 5;
+    public float lifeTime = 5;
     public int damage = 5;
     // player number == -1 indicats enemy bullets
     [SyncVar]
