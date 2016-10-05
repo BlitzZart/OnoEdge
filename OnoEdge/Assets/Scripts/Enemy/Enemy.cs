@@ -40,7 +40,7 @@ public class Enemy : NetworkBehaviour, IFireBullet {
 
     void Update() {
         transform.position = Vector3.MoveTowards(transform.position, target.position, moveSpeed * Time.deltaTime);
-        transform.rotation = Quaternion.LookRotation(target.position);
+        //transform.LookAt(target);
     }
 
     void OnDestroy() {

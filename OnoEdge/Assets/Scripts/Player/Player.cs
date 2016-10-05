@@ -15,6 +15,7 @@ public class Player : NetworkBehaviour, IFireBullet {
 
     private Base playerBase;
     private Gun gun;
+    private Shield shield;
     private AudioSource audioSource;
     private PlayerSounds playerSounds;
 
@@ -66,6 +67,7 @@ public class Player : NetworkBehaviour, IFireBullet {
         //NW_GameLogic.GameStartedEvent += OnGameStarted;
 
         gun = GetComponentInChildren<Gun>();
+        shield = GetComponentInChildren<Shield>();
         audioSource = GetComponent<AudioSource>();
         playerSounds = GetComponent<PlayerSounds>();
 
@@ -184,6 +186,13 @@ public class Player : NetworkBehaviour, IFireBullet {
         if (Input.GetKeyDown(KeyCode.LeftControl)) {
             gun.Shoot();
         }
+        if (Input.GetKeyDown(KeyCode.Space)) {
+            shield.SetShieldState(true);
+            CmdSetShieldState(true);
+        } else if (Input.GetKeyUp(KeyCode.Space)) {
+            shield.SetShieldState(false);
+            CmdSetShieldState(false);
+        }
 //#endif
 
 #if UNITY_ANDROID && !UNITY_EDITOR // do // && !UNITY_EDITOR to test with remote
@@ -257,6 +266,17 @@ public class Player : NetworkBehaviour, IFireBullet {
         if (lobbyList == null)
             return;
         lobbyList.UpdateEntries();
+    }
+
+    [Command]
+    private void CmdSetShieldState(bool state) {
+        RpcSetShieldState(state);
+    }
+    [ClientRpc]
+    private void RpcSetShieldState(bool state) {
+        if (localPlayerAuthority)
+            return;
+        shield.SetShieldState(state);
     }
 
     [Command]

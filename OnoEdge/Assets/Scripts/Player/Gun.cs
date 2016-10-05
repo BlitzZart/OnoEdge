@@ -5,7 +5,7 @@ public class Gun : MonoBehaviour {
 
     public GameObject bulletPrefab;
     public GameObject nozzle;
-    private float speed = 50f;
+    public float speed = 50f;
     private IFireBullet player;
     public IFireBullet Player {
         get {
